@@ -1,5 +1,20 @@
-{% extends "base.html" #}
+{% extends "base.html" %}
 
 {% block content %}
+
+<h1>Add A New Blog Entry</h1>
+
+<form method='POST' action='/newpost'>
+    <label>
+        Title:
+        <input type="text" name="title">
+    </label>
+        <br>
+    <label>
+        Body:
+        <input type="text" name="body">
+    </label>
+    <input type="submit" value="Add">
+</form>
 
 {% endblock %}

@@ -1,5 +1,14 @@
-{% extends "base.html" #}
+{% extends "base.html" %}
 
 {% block content %}
+<h1>Archived Blogs</h1>
+
+{% for blog in blogs %}
+
+    <h3>{{blog.title}}</h3>
+    <p>{{blog.body}}</p>
+    <hr>
+    
+{% endfor %}
 
 {% endblock %}
