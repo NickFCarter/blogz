@@ -18,22 +18,46 @@ class Blog(db.Model):
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-    #TODO - Display blogs and titles on main page
+    return redirect('/blog')
+
+@app.route('/blog', methods=['POST', 'GET'])
+def display():
     blogs = Blog.query.all()
-    return render_template('mainBlogPage.html', title="Blog Page", blogs=blogs)
+    if request.args.get('id'):
+        blog_id = request.args.get('id')
+        blog = Blog.query.filter_by(id=blog_id).first()
+        return render_template('individual.html', blog=blog)
+    else:
+        return render_template('mainBlogPage.html', title="Blog Page", blogs=blogs)
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def add_post():
 
     if request.method == 'POST':
+
         title = request.form['title']
         body = request.form['body']
-        new_post = Blog(title, body)
-        db.session.add(new_post)
-        db.session.commit()
-        blogs = Blog.query.all()
-        return render_template('mainBlogPage.html', title="Blog Page", blogs=blogs)
-    
+
+        title_error = None
+        body_error = None
+
+        if len(title) == 0:
+            title_error = 'Title cannot be blank'
+        
+        if len(body) == 0:
+            body_error = 'Body cannot be blank'
+
+        if title_error or body_error:
+            return render_template('newpost.html', title_error=title_error, body_error=body_error, keeptitle=title, keepbody=body)
+
+        else:
+            new_post = Blog(title, body)
+            db.session.add(new_post)
+            db.session.commit()
+            #blog = Blog.query.filter_by(title=title, body=body).first()
+            blog_id = new_post.id
+            return redirect('/blog?id={0}'.format(blog_id))
+
     else:
         return render_template('newpost.html', title="New Blog")
 

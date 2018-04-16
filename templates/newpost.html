@@ -7,12 +7,19 @@
 <form method='POST' action='/newpost'>
     <label>
         Title:
-        <input type="text" name="title">
+        <input type="text" name="title" value= {{ keeptitle }} >
+        {% if title_error %}
+            <p class='error' style="display:inline-block"> {{ title_error }} </p>
+        {% endif %}
     </label>
         <br>
+
     <label>
         Body:
-        <input type="text" name="body">
+        <input type="text" name="body" value= {{ keepbody }} >
+        {% if body_error %}
+           <p class='error' style="display:inline-block"> {{ body_error }} </p>
+        {% endif %}
     </label>
     <input type="submit" value="Add">
 </form>
