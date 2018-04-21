@@ -33,6 +33,26 @@ class User(db.Model):
 def index():
     return redirect('/blog')
 
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+        if user and user.password == password:
+            session['email'] = email
+            flash("Logged in")
+            return redirect('/newpost')
+        if not user:
+            flash('User does not exist')
+        if user.password != password:
+            flash('Password is incorrect')
+
+    return render_template('login.html')
+
+@app.route('/signup', methods=['POST', 'GET'])
+
+
 @app.route('/blog', methods=['POST', 'GET'])
 def display():
     blogs = Blog.query.all()
@@ -45,6 +65,8 @@ def display():
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def add_post():
+
+    #owner = User.query.filter_by(email=session['email']).first()
 
     if request.method == 'POST':
 
