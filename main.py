@@ -25,8 +25,8 @@ class User(db.Model):
     password = db.Column(db.String(150))
     blogs = db.relationship('Blog', backref='owner')
 
-    def __init__(self, email, password):
-        self.email = email
+    def __init__(self, username, password):
+        self.username = username
         self.password = password
 
 @app.route('/', methods=['POST', 'GET'])
@@ -35,22 +35,58 @@ def index():
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+    username_error = None
+    password_error = None
+
     if request.method == 'POST':
-        email = request.form['email']
+        username = request.form['username']
         password = request.form['password']
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(username=username).first()
         if user and user.password == password:
-            session['email'] = email
-            flash("Logged in")
+            session['username'] = username
             return redirect('/newpost')
         if not user:
-            flash('User does not exist')
+            username_error = "User does not exist"
         if user.password != password:
-            flash('Password is incorrect')
+            password_error = "Incorrect password"
 
-    return render_template('login.html')
+    return render_template('login.html', username_error=username_error, password_error=password_error)
 
 @app.route('/signup', methods=['POST', 'GET'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        verify = request.form['verify']
+        username_error = None
+        password_error = None
+        verify_error = None
+
+        # TODO - validate user's data
+        if (len(username) < 3):
+            username_error = "Username must be at least 3 characters long"
+
+        if (len(password) < 3):
+            password_error = "Password must be at lest 3 characters long"
+
+        if password != verify:
+            verify_error = "Passwords do not match"
+
+        if username_error or password_error or verify_error:
+            return render_template('signup.html', username=username, username_error=username_error, password_error=password_error, verify_error=verify_error)
+
+        existing_user = User.query.filter_by(username=username).first()
+        if not existing_user:
+            new_user = User(username, password)
+            db.session.add(new_user)
+            db.session.commit()
+            session['username'] = username
+            return redirect('/newpost')
+        else:
+            username_error = "Duplicate user"
+            return render_template('signup.html', username_error=username_error)
+
+    return render_template('signup.html')
 
 
 @app.route('/blog', methods=['POST', 'GET'])
