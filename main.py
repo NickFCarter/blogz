@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -31,6 +31,12 @@ class User(db.Model):
         self.username = username
         self.password = password
 
+@app.before_request
+def require_login():
+    allowed_routes = ['login', 'signup']
+    if request.endpoint not in allowed_routes and 'username' not in session:
+        return redirect('/login')
+
 @app.route('/', methods=['POST', 'GET'])
 def index():
     return redirect('/blog')
@@ -49,10 +55,12 @@ def login():
             return redirect('/newpost')
         if not user:
             username_error = "User does not exist"
-        if user.password != password:
+            return render_template('login.html', username_error=username_error, username=username)
+        if user and user.password != password:
             password_error = "Incorrect password"
+            return render_template('login.html', password_error=password_error, username=username)
+    return render_template('login.html')
 
-    return render_template('login.html', username_error=username_error, password_error=password_error)
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
@@ -104,7 +112,7 @@ def display():
 @app.route('/newpost', methods=['POST', 'GET'])
 def add_post():
 
-    #owner = User.query.filter_by(email=session['email']).first()
+    owner = User.query.filter_by(username=session['username']).first()
 
     if request.method == 'POST':
 
@@ -124,10 +132,10 @@ def add_post():
             return render_template('newpost.html', title_error=title_error, body_error=body_error, keeptitle=title, keepbody=body)
 
         else:
-            new_post = Blog(title, body)
+            new_post = Blog(title, body, owner)
             db.session.add(new_post)
             db.session.commit()
-            #blog = Blog.query.filter_by(title=title, body=body).first()
+            blog = Blog.query.filter_by(title=title, body=body).first()
             blog_id = new_post.id
             return redirect('/blog?id={0}'.format(blog_id))
 

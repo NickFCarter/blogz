@@ -17,12 +17,18 @@
             <td><label for="password">Password</label></td>
             <td>
                 <input name="password" type="password">
+                {% if password_error %}
+                <p class='error' style="display:inline-block;">{{ password_error }}</p>
+                {% endif %}
             </td>
         </tr>
         <tr>
             <td><label for="verify">Verify Password</label></td>
             <td>
                 <input name="verify" type="password">
+                {% if verify_error %}
+                <p class='error' style="display:inline-block;">{{ verify_error }}</p>
+                {% endif %}
             </td>
         </tr>
     </table>

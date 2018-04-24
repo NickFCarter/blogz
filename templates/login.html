@@ -8,7 +8,7 @@
         <tr>
             <td><label for="username">Username</label></td>
             <td>
-                <input name="username" type="username">
+                <input name="username" type="username" value='{{ username }}'>
                 {% if username_error %} 
                 <p class='error' style="display:inline-block;">{{ username_error }}</p>
                 {% endif %} 
