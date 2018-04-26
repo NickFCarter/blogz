@@ -100,7 +100,7 @@ def signup():
             return redirect('/newpost')
         else:
             username_error = "Duplicate user"
-            return render_template('signup.html', username_error=username_error)
+            return render_template('signup.html', username_error=username_error, username=username)
 
     return render_template('signup.html')
 
